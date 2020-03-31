@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Treasuro/database"
+	"Jann-Pass/db"
 
 	"net/http"
 
@@ -12,7 +12,7 @@ import (
 var cl1, cl2  *mongo.Collection
 
 func init(){
- cl1,cl2=database.Createdb()
+ cl1,cl2=db.Createdb()
 }
 
 func main() {

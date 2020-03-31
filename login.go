@@ -1,7 +1,7 @@
 package main
 
 import (
-
+    "Jann-Pass/db"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -25,9 +25,9 @@ func login(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"error": "body not parsed"}`))
 		return
 	}
-	ok := database.FindUser(cl1, user.Email, user.Password)
+	ok := db.FindUser(cl1, user.Email, user.Password)
 	if ok {
-		u := database.Finddb(cl1, user.Username)
+		u := db.Finddb(cl1, user.Username)
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"email": u.Email,
 	         "name": u.Name
@@ -40,7 +40,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(`{"error": "error in token string"}`))
 			return
 		}
-		tkn := database.UpdateToken(cl1, u.Email, tokenString)
+		tkn := db.UpdateToken(cl1, u.Email, tokenString)
 		if tkn {
 			json.NewEncoder(w).Encode(tokenString)
 			w.WriteHeader(http.StatusCreated)
