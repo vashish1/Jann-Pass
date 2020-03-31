@@ -27,10 +27,10 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 	ok := db.FindUser(cl1, user.Email, user.Password)
 	if ok {
-		u := db.Finddb(cl1, user.Username)
+		u := db.Finddb(cl1, user.Email)
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"email": u.Email,
-	         "name": u.Name
+	         "name": u.Name,
 		})
 
 		tokenString, err := token.SignedString([]byte("idgafaboutthingsanymore"))

@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -23,7 +22,7 @@ type User struct {
 }
 
 //Newuser .....
-func Newuser(name, email,aadhar, password) User {
+func Newuser(name, email,aadhar, password string) User {
 
 	Password := SHA256ofstring(password)
 	U := User{Name: name, Email: email, PasswordHash: Password,Aadhar: aadhar}
@@ -54,7 +53,7 @@ func Insertintouserdb(usercollection *mongo.Collection, u User) bool {
 
 //Findfromuserdb finds the required data
 func Findfromuserdb(usercollection *mongo.Collection, st string) bool {
-	filter := bson.D{primitive.E{Key: "uuid", Value: st}}
+	filter := bson.D{primitive.E{Key: "email", Value: st}}
 	var result User
 
 	err := usercollection.FindOne(context.TODO(), filter).Decode(&result)
@@ -80,6 +79,20 @@ func FindUser(usercollection *mongo.Collection, st string, p string) bool {
 	}
 	return true
 }
+
+func Finddb(usercollection *mongo.Collection, st string) User {
+	filter := bson.D{primitive.E{Key: "email", Value: st}}
+	var result User
+
+	err := usercollection.FindOne(context.TODO(), filter).Decode(&result)
+	if err != nil {
+		fmt.Println(err)
+		return result
+	}
+	
+	return result
+}
+
 
 //UpdateToken updates the user info
 func UpdateToken(c *mongo.Collection, o string, t string) bool {
