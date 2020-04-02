@@ -15,7 +15,9 @@ type logn struct {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
+
 	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, "Hello World! %s", time.Now())
 	// var result database.User
 	var user logn
 	body, _ := ioutil.ReadAll(r.Body)
