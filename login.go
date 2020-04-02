@@ -1,16 +1,18 @@
 package main
 
 import (
-    "Jann-Pass/db"
+	"Jann-Pass/db"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
 type logn struct {
-	Email string
+	Email    string
 	Password string
 }
 
@@ -32,7 +34,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		u := db.Finddb(cl1, user.Email)
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"email": u.Email,
-	         "name": u.Name,
+			"name":  u.Name,
 		})
 
 		tokenString, err := token.SignedString([]byte("idgafaboutthingsanymore"))
@@ -42,11 +44,11 @@ func login(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(`{"error": "error in token string"}`))
 			return
 		}
-		type t struct{
+		type t struct {
 			Token string
 		}
-		 var try t
-		 try.Token=tokenString
+		var try t
+		try.Token = tokenString
 		tkn := db.UpdateToken(cl1, u.Email, tokenString)
 		if tkn {
 			json.NewEncoder(w).Encode(try)
