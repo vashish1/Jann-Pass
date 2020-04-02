@@ -23,7 +23,7 @@ func main() {
 	methods:=handlers.AllowedMethods([]string{"POST","GET","PUT","DELETE"})
 	origins:=handlers.AllowedOrigins([]string{"*"})
 	r.HandleFunc("/signup",signup).Methods("POST","GET")
-	r.HandleFunc("/login", login).Methods("POST")
+	r.HandleFunc("/login", login).Methods("POST","GET")
 	http.Handle("/", handlers.CORS(headers,methods,origins)(r))
 	http.ListenAndServe(":3000", nil)
 }
