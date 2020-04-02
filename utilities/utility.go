@@ -7,8 +7,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/dgrijalva/jwt-go"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func GenerateToken(name, email string) string {
@@ -57,10 +59,18 @@ func StoreImage(str string) string {
 	// This is required if you want to use things like
 	// Keep-Alive and other HTTP sorcery.
 	res.Body.Close()
-    path:="./Qr/"+str[0:5]+".png"
+	path := "./Qr/" + str[0:5] + ".png"
 	// You can now save it to disk or whatever...
 	ioutil.WriteFile(path, data, 0666)
 
 	log.Println("I saved your image buddy!")
 	return path
+}
+
+func IsQrValid(cl3 *mongo.Collection, enc string) bool {
+	enc = enc[1:len(enc)]
+	dec := DecodeQrString(enc)
+	st := strings.Split(dec, ",")
+	ok := db.EpassExists(cl3, st[0], enc)
+	return ok
 }

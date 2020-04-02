@@ -25,6 +25,7 @@ func main() {
 	r.HandleFunc("/signup",signup).Methods("POST")
 	r.HandleFunc("/login", login).Methods("POST")
 	r.HandleFunc("/epass",epass).Methods("GET","POST")
+	r.HandleFunc("/checkepass",checkepass).Methods("GET","POST")
 	http.Handle("/", handlers.CORS(headers,methods,origins)(r))
 	http.ListenAndServe(":3000", nil)
 }
