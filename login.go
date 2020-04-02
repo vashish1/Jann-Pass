@@ -3,10 +3,8 @@ package main
 import (
 	"Jann-Pass/db"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -19,7 +17,7 @@ type logn struct {
 func login(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "Hello World! %s", time.Now())
+	// fmt.Fprintf(w, "Hello World! %s", time.Now())
 	// var result database.User
 	var user logn
 	body, _ := ioutil.ReadAll(r.Body)
