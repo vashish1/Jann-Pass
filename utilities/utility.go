@@ -6,8 +6,10 @@ import (
 	b64 "encoding/base64"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -73,4 +75,15 @@ func IsQrValid(cl3 *mongo.Collection, enc string) bool {
 	st := strings.Split(dec, ",")
 	ok := db.EpassExists(cl3, st[0], enc)
 	return ok
+}
+
+func GenerateID() []int {
+	var slice []int
+	for i:= 0; i < 20; i++ {
+		rand.Seed(time.Now().UnixNano())
+		min := 1000
+		max := 3000
+		slice = append(slice, (rand.Intn(max-min+1) + min))
+	}
+	return slice
 }

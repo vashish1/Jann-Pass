@@ -39,42 +39,49 @@ func epass(w http.ResponseWriter, r *http.Request) {
 		_ = claims["name"].(string)
 		email = claims["email"].(string)
 	}
-	var regis pass
-	w.Header().Set("Content-Type", "application/json")
-	body, _ := ioutil.ReadAll(r.Body)
-	err := json.Unmarshal(body, &regis)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error": "body not parsed"}`))
-		return
-	}
-	var PASS db.Epass
-	PASS.Email = email
-	PASS.Aadhar = regis.Aadhar
-	PASS.Slot = regis.Slot
-	PASS.Date = regis.Date
-	PASS.Qr = utilities.EncodeQrString(PASS)
-	PASS.QrAddress = utilities.StoreImage(PASS.Qr)
-	ok := db.InsertEpass(cl3, PASS)
-	if ok {
-		 var enc png.Encoder
-		file, err := os.Open(PASS.QrAddress)
+	is:=db.Findfromuserdb(cl1,email)
+	if is{
+		var regis pass
+		w.Header().Set("Content-Type", "application/json")
+		body, _ := ioutil.ReadAll(r.Body)
+		err := json.Unmarshal(body, &regis)
 		if err != nil {
-			fmt.Println(err)
-		}
-         
-		img, err := png.Decode(file)
-		if err != nil {
-			fmt.Print(err)
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(`{"error": "Image not created"}`))
+			w.Write([]byte(`{"error": "body not parsed"}`))
+			return
 		}
-
-		defer file.Close()
-		er:=enc.Encode(w, img)
-		fmt.Print(er)
-	} else {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error": "Pass not inserted"}`))
+		var PASS db.Epass
+		PASS.Email = email
+		PASS.Aadhar = regis.Aadhar
+		PASS.Slot = regis.Slot
+		PASS.Date = regis.Date
+		PASS.Qr = utilities.EncodeQrString(PASS)
+		PASS.QrAddress = utilities.StoreImage(PASS.Qr)
+		ok := db.InsertEpass(cl3, PASS)
+		if ok {
+			 var enc png.Encoder
+			file, err := os.Open(PASS.QrAddress)
+			if err != nil {
+				fmt.Println(err)
+			}
+			 
+			img, err := png.Decode(file)
+			if err != nil {
+				fmt.Print(err)
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte(`{"error": "Image not created"}`))
+			}
+	
+			defer file.Close()
+			er:=enc.Encode(w, img)
+			fmt.Print(er)
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(`{"error": "Pass not inserted"}`))
+		}
+	}else{
+		w.WriteHeader(http.StatusOK)
+	    w.Write([]byte(`{"error": "Authentication unsuccessful"}`))
 	}
+	
 }
