@@ -15,10 +15,6 @@ type logn struct {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	setupResponse(&w, r)
-	if (r).Method == "OPTIONS" {
-		return
-	}
 	w.Header().Set("Content-Type", "application/json")
 	// var result database.User
 	var user logn

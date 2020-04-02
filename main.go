@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/handlers"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -15,16 +16,14 @@ func init(){
  cl1,cl2=db.Createdb()
 }
 
-func setupResponse(w *http.ResponseWriter, req *http.Request) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-}
-
+// 
 func main() {
 	r := mux.NewRouter()
+	headers:=handlers.AllowedHeaders([]string{"Accept", "Content-Type","Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization"})
+	methods:=handlers.AllowedMethods([]string{"POST","GET","PUT","DELETE"})
+	origins:=handlers.AllowedOrigins([]string{"*"})
 	r.HandleFunc("/signup",signup).Methods("POST","GET")
 	r.HandleFunc("/login", login).Methods("POST")
-	http.Handle("/", r)
+	http.Handle("/", handlers.CORS(headers,methods,origins)(r))
 	http.ListenAndServe(":3000", nil)
 }

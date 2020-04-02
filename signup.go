@@ -15,10 +15,6 @@ type mocksignup struct {
 }
 
 func signup(w http.ResponseWriter, r *http.Request) {
-	setupResponse(&w, r)
-	if (r).Method == "OPTIONS" {
-		return
-	}
 	var regis mocksignup
 	w.Header().Set("Content-Type", "application/json")
 	// var user db.User
