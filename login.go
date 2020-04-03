@@ -10,6 +10,11 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+type t struct {
+	Success string
+	Token string
+}
+
 type logn struct {
 	Email    string
 	Password string
@@ -46,16 +51,15 @@ func login(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(`{"error": "error in token string"}`))
 			return
 		}
-		type t struct {
-			Token string
-		}
 		fmt.Println("3")
 		var try t
+		try.Success="Loged in successfully"
 		try.Token = tokenString
 		tkn := db.UpdateToken(cl1, u.Email, tokenString)
 		if tkn {
-			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(tokenString)
+			// w.WriteHeader(http.StatusOK)
+			// w.Write()
+			json.NewEncoder(w).Encode(try)
 			// w.Write([]byte(`{"successful": "Registered"}`))
 			// fmt.Print("try",try)
 			// w.Write([]byte(`

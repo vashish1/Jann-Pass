@@ -26,8 +26,6 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u := db.Newuser(regis.Name, regis.Email, regis.Aadhar, regis.Password)
-	// token:=utilities.GenerateToken(u.Name,u.Email)
-	// u.Token=db.UpdateToken(cl1,u.Email,token)
 	ok := db.Insertintouserdb(cl1, u)
 	if ok {
 		w.WriteHeader(http.StatusOK)
