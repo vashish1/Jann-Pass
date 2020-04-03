@@ -19,6 +19,7 @@ type pass struct {
 	Slot   string
 	Date   string
 	Time   string
+	Area string
 }
 
 func epass(w http.ResponseWriter, r *http.Request) {
@@ -56,6 +57,7 @@ func epass(w http.ResponseWriter, r *http.Request) {
 		PASS.Aadhar = regis.Aadhar
 		PASS.Slot = regis.Slot
 		PASS.Date = regis.Date
+		PASS.Area=regis.Area
 		PASS.Qr = utilities.EncodeQrString(PASS)
 		PASS.QrAddress = utilities.StoreImage(PASS.Qr)
 		ok := db.InsertEpass(cl3, PASS)
