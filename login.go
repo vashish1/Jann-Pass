@@ -54,10 +54,15 @@ func login(w http.ResponseWriter, r *http.Request) {
 		try.Token = tokenString
 		tkn := db.UpdateToken(cl1, u.Email, tokenString)
 		if tkn {
-			// fmt.Print("try",try)
-			w.Write([]byte(`{"success": "created token successfully"}`))
+			w.WriteHeader(http.StatusOK)
 			json.NewEncoder(w).Encode(try)
-			w.WriteHeader(http.StatusCreated)
+			// w.Write([]byte(`{"successful": "Registered"}`))
+			// fmt.Print("try",try)
+			// w.Write([]byte(`
+			// {"success": "created token successfully"}
+			// {"success":}`))
+			// json.NewEncoder(w).Encode(try)
+			// w.WriteHeader(http.StatusCreated)
 			
 		} else {
 			w.WriteHeader(http.StatusCreated)
