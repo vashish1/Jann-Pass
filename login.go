@@ -3,6 +3,7 @@ package main
 import (
 	"Jann-Pass/db"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -27,8 +28,10 @@ func login(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"error": "body not parsed"}`))
 		return
 	}
+	fmt.Println(user)
 	ok := db.FindUser(cl1, user.Email, user.Password)
 	if ok {
+		fmt.Println("1")
 		u := db.Finddb(cl1, user.Email)
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"email": u.Email,
@@ -36,17 +39,19 @@ func login(w http.ResponseWriter, r *http.Request) {
 		})
 
 		tokenString, err := token.SignedString([]byte("idgafaboutthingsanymore"))
-
+		fmt.Println("2")
 		if err != nil {
+
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(`{"error": "error in token string"}`))
 			return
 		}
 		type t struct {
-			Token string
+			token string
 		}
+		fmt.Println("3")
 		var try t
-		try.Token = tokenString
+		try.token = tokenString
 		tkn := db.UpdateToken(cl1, u.Email, tokenString)
 		if tkn {
 			json.NewEncoder(w).Encode(try)
@@ -56,5 +61,9 @@ func login(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusCreated)
 			w.Write([]byte(`{"error": "token not created"}`))
 		}
+	} else {
+		fmt.Print("4")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"error": "no such user exist"}`))
 	}
 }
