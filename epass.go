@@ -74,7 +74,7 @@ func epass(w http.ResponseWriter, r *http.Request) {
 			}
 	
 			defer file.Close()
-			// w.Header().Set("Content-Type", "image/png")
+			w.Header().Set("Content-Type", "image/png")
 			er:=enc.Encode(w, img)
 			fmt.Print(er)
 		} else {
