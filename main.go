@@ -2,6 +2,7 @@ package main
 
 import (
 	"Jann-Pass/db"
+	"time"
 	// "Jann-Pass/utilities"
 
 	"net/http"
@@ -12,6 +13,9 @@ import (
 )
 
 var cl1, cl2,cl3  *mongo.Collection
+var count int
+var start time.Time
+var finish time.Time
 
 func init(){
  cl1,cl2,cl3=db.Createdb()

@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -23,6 +24,21 @@ type pass struct {
 }
 
 func epass(w http.ResponseWriter, r *http.Request) {
+	now:=time.Now()
+	if count ==0{
+		start=time.Now()
+		finish=start.AddDate(0,0,7)
+	}else if count==50&&now.Before(finish){
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "cannot issue pass: Limit exceeded for a week"}`))
+		return
+	}else if count==50&&now.After(finish){
+		count=1
+		start=now
+		finish=start.AddDate(0,0,7)
+	}else{
+		count++
+	}
 	w.Header().Set("Content-Type", "application/json")
 	tokenString := r.Header.Get("Authorization")
 
@@ -87,5 +103,4 @@ func epass(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	    w.Write([]byte(`{"error": "Authentication unsuccessful"}`))
 	}
-	
 }
