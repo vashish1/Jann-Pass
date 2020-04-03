@@ -55,7 +55,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		tkn := db.UpdateToken(cl1, u.Email, tokenString)
 		if tkn {
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(try)
+			json.NewEncoder(w).Encode(tokenString)
 			// w.Write([]byte(`{"successful": "Registered"}`))
 			// fmt.Print("try",try)
 			// w.Write([]byte(`
