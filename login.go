@@ -47,16 +47,18 @@ func login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		type t struct {
-			token string
+			Token string
 		}
 		fmt.Println("3")
 		var try t
-		try.token = tokenString
+		try.Token = tokenString
 		tkn := db.UpdateToken(cl1, u.Email, tokenString)
 		if tkn {
+			// fmt.Print("try",try)
+			w.Write([]byte(`{"success": "created token successfully"}`))
 			json.NewEncoder(w).Encode(try)
 			w.WriteHeader(http.StatusCreated)
-			// w.Write([]byte(`{"success": "created token successfully"}`))
+			
 		} else {
 			w.WriteHeader(http.StatusCreated)
 			w.Write([]byte(`{"error": "token not created"}`))
