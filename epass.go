@@ -39,6 +39,7 @@ func epass(w http.ResponseWriter, r *http.Request) {
 		_ = claims["name"].(string)
 		email = claims["email"].(string)
 	}
+	fmt.Print("email",email)
 	is:=db.Findfromuserdb(cl1,email)
 	if is{
 		var regis pass
@@ -73,6 +74,7 @@ func epass(w http.ResponseWriter, r *http.Request) {
 			}
 	
 			defer file.Close()
+			// w.Header().Set("Content-Type", "image/png")
 			er:=enc.Encode(w, img)
 			fmt.Print(er)
 		} else {

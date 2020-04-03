@@ -74,6 +74,9 @@ func IsQrValid(cl3 *mongo.Collection, enc string) bool {
 	dec := DecodeQrString(enc)
 	st := strings.Split(dec, ",")
 	ok := db.EpassExists(cl3, st[0], enc)
+	if ok{
+		db.DeleteEpass(cl3,st[0],enc)
+	}
 	return ok
 }
 
