@@ -53,7 +53,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Println("3")
 		var try t
-		try.Success="Loged in successfully"
+		try.Success="Logged in successfully"
 		try.Token = tokenString
 		tkn := db.UpdateToken(cl1, u.Email, tokenString)
 		if tkn {
@@ -65,7 +65,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		fmt.Print("4")
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"error": "no such user exist"}`))
 	}
 }

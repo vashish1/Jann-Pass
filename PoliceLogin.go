@@ -38,10 +38,8 @@ func policeLogin(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(`{"error": "error in token string"}`))
 			return
 		}
-		type t struct {
-			Token string
-		}
 		var try t
+		try.Success="Logged in successfully"
 		try.Token = tokenString
 		tkn := db.UpdatePoliceCreds(cl2, user.ID, tokenString)
 		if tkn {
@@ -52,5 +50,8 @@ func policeLogin(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusCreated)
 			w.Write([]byte(`{"error": "token not created"}`))
 		}
+	}else{
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"error": "Invalid Id"}`))
 	}
 }
