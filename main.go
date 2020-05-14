@@ -2,7 +2,6 @@ package main
 
 import (
 	"Jann-Pass/db"
-	"context"
 	"os"
 	"time"
 
@@ -17,14 +16,13 @@ import (
 )
 
 var cl1, cl2, cl3 *mongo.Collection
-var cntx context.Context
 var count int
 var start time.Time
 var finish time.Time
 var port = os.Getenv("PORT")
 
 func init() {
-	cl1, cl2, cl3, cntx = db.Createdb()
+	cl1, cl2, cl3 = db.Createdb()
 
 }
 
