@@ -33,6 +33,7 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"successful": "Registered"}`))
 	} else {
+		fmt.Println(er)
 		json.NewEncoder(w).Encode(er)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"error": "user not created"}`))
