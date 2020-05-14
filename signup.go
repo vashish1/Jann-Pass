@@ -28,12 +28,12 @@ func signup(w http.ResponseWriter, r *http.Request) {
 	}
 	u := db.Newuser(regis.Name, regis.Email, regis.Aadhar, regis.Password)
 	fmt.Println("user here",u)
-	ok,err:= db.Insertintouserdb(cl1, u)
+	ok,er:= db.Insertintouserdb(cl1, u)
 	if ok {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"successful": "Registered"}`))
 	} else {
-		json.NewEncoder(w).Encode(err)
+		json.NewEncoder(w).Encode(er)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"error": "user not created"}`))
 	}
