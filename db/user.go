@@ -39,7 +39,7 @@ func SHA256ofstring(p string) string {
 }
 
 //Insertintouserdb inserts the data into the database
-func Insertintouserdb(usercollection *mongo.Collection, u User) bool {
+func Insertintouserdb(usercollection *mongo.Collection, u User) (bool,error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -51,11 +51,11 @@ func Insertintouserdb(usercollection *mongo.Collection, u User) bool {
 	insertResult, err := usercollection.InsertOne(ctx, u)
 	if err != nil {
 		log.Print("error in inserting user", err)
-		return false
+		return false,err
 	}
 
 	fmt.Println("Inserted a single document: ", insertResult.InsertedID)
-	return true
+	return true,nil
 }
 
 //Findfromuserdb finds the required data
