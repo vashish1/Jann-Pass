@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -23,8 +24,10 @@ type Epass struct {
 
 //InsertEpass inserts the data into the database
 func InsertEpass(c *mongo.Collection, u Epass) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	insertResult, err := c.InsertOne(context.TODO(), u)
+	insertResult, err := c.InsertOne(ctx, u)
 	if err != nil {
 		log.Print(err)
 		return false
@@ -35,22 +38,26 @@ func InsertEpass(c *mongo.Collection, u Epass) bool {
 }
 
 func EpassExists(c *mongo.Collection, email, enc string) bool {
-	filter := bson.D{primitive.E{Key: "email", Value:email}, {Key:"qr",Value:  enc}}
-	 var result Epass
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	filter := bson.D{primitive.E{Key: "email", Value: email}, {Key: "qr", Value: enc}}
+	var result Epass
 
-	 err := c.FindOne(context.TODO(), filter).Decode(&result)
-         if err != nil {
-		  fmt.Println(err)
-	       return false
-			 }
-	 return true
+	err := c.FindOne(ctx, filter).Decode(&result)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	return true
 }
 
-func DeleteEpass(c *mongo.Collection, email, enc string){
+func DeleteEpass(c *mongo.Collection, email, enc string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-deleteResult, err := c.DeleteOne(context.TODO(),bson.D{primitive.E{Key: "email", Value:email}, {Key:"qr",Value:  enc}} )
-if err != nil {
-    log.Fatal(err)
-}
-fmt.Printf("Deleted %v documents in the trainers collection\n", deleteResult.DeletedCount)
+	deleteResult, err := c.DeleteOne(ctx, bson.D{primitive.E{Key: "email", Value: email}, {Key: "qr", Value: enc}})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Deleted %v documents in the trainers collection\n", deleteResult.DeletedCount)
 }

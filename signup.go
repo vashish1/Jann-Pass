@@ -3,6 +3,7 @@ package main
 import (
 	"Jann-Pass/db"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -26,6 +27,7 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u := db.Newuser(regis.Name, regis.Email, regis.Aadhar, regis.Password)
+	fmt.Println("user here",u)
 	ok := db.Insertintouserdb(cl1, u)
 	if ok {
 		w.WriteHeader(http.StatusOK)
