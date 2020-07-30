@@ -1,11 +1,12 @@
 package main
 
 import (
-	"Jann-Pass/db"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/vashish1/Jann-Pass/db"
 )
 
 type mocksignup struct {
@@ -27,8 +28,8 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u := db.Newuser(regis.Name, regis.Email, regis.Aadhar, regis.Password)
-	fmt.Println("user here",u)
-	ok,er:= db.Insertintouserdb(cl1, u)
+	fmt.Println("user here", u)
+	ok, er := db.Insertintouserdb(cl1, u)
 	if ok {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"successful": "Registered"}`))

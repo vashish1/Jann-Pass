@@ -1,18 +1,19 @@
 package main
 
 import (
-	"Jann-Pass/db"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/vashish1/Jann-Pass/db"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
 type t struct {
 	Success string
-	Token string
+	Token   string
 }
 
 type logn struct {
@@ -53,12 +54,12 @@ func login(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Println("3")
 		var try t
-		try.Success="Logged in successfully"
+		try.Success = "Logged in successfully"
 		try.Token = tokenString
 		tkn := db.UpdateToken(cl1, u.Email, tokenString)
 		if tkn {
 			json.NewEncoder(w).Encode(try)
-			
+
 		} else {
 			w.WriteHeader(http.StatusCreated)
 			w.Write([]byte(`{"error": "token not created"}`))

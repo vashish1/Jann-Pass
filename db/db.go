@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	// "go.mongodb.org/mongo-driver/bson"
@@ -17,8 +18,9 @@ import (
 func Createdb() (*mongo.Collection, *mongo.Collection, *mongo.Collection) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	db := os.Getenv("DbURL")
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(
-		"mongodb+srv://yashi:KNT8CQsC7120GowL@cluster0-2pscc.mongodb.net/test?retryWrites=true&w=majority",
+		db,
 	))
 	if err != nil {
 		log.Fatal(err)

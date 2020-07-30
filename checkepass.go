@@ -1,13 +1,14 @@
 package main
 
 import (
-	"Jann-Pass/db"
-	"Jann-Pass/utilities"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/vashish1/Jann-Pass/db"
+	"github.com/vashish1/Jann-Pass/utilities"
 
 	"github.com/dgrijalva/jwt-go"
 )

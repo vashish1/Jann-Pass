@@ -1,11 +1,12 @@
 package main
 
 import (
-	"Jann-Pass/db"
 	"os"
 	"time"
 
-	// "Jann-Pass/utilities"
+	"github.com/vashish1/Jann-Pass/db"
+
+	// "github.com/vashish1/Jann-Pass/utilities"
 
 	"net/http"
 
@@ -33,6 +34,7 @@ func main() {
 	origins := handlers.AllowedOrigins([]string{"*"})
 	r.HandleFunc("/signup", signup).Methods("POST")
 	r.HandleFunc("/login", login).Methods("POST")
+	// r.HandleFunc("/logout",logout).Methods("GET,POST")
 	r.HandleFunc("/epass", epass).Methods("GET", "POST")
 	r.HandleFunc("/checkepass", checkepass).Methods("GET", "POST")
 	r.HandleFunc("/login/police", policeLogin).Methods("POST")

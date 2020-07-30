@@ -2,7 +2,6 @@ package utilities
 
 import (
 	// "fmt"
-	"Jann-Pass/db"
 	b64 "encoding/base64"
 	"io/ioutil"
 	"log"
@@ -10,6 +9,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/vashish1/Jann-Pass/db"
 
 	"github.com/dgrijalva/jwt-go"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -74,15 +75,15 @@ func IsQrValid(cl3 *mongo.Collection, enc string) bool {
 	dec := DecodeQrString(enc)
 	st := strings.Split(dec, ",")
 	ok := db.EpassExists(cl3, st[0], enc)
-	if ok{
-		db.DeleteEpass(cl3,st[0],enc)
+	if ok {
+		db.DeleteEpass(cl3, st[0], enc)
 	}
 	return ok
 }
 
 func GenerateID() []int {
 	var slice []int
-	for i:= 0; i < 20; i++ {
+	for i := 0; i < 20; i++ {
 		rand.Seed(time.Now().UnixNano())
 		min := 1000
 		max := 3000
@@ -90,4 +91,3 @@ func GenerateID() []int {
 	}
 	return slice
 }
-
