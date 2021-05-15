@@ -10,23 +10,22 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 //User ......
 type User struct {
-	Name         string
-	Email        string
-	Aadhar       string
-	PasswordHash string
-	Token        string
+	Name         string `json:"name,omitempty"`
+	Email        string `json:"email,omitempty"`
+	Aadhar       string `json:"aadhar,omitempty"`
+	PasswordHash string `json:"password_hash,omitempty"`
+	EpassIssued  bool   `json:"epass_issued,omitempty"`
 }
 
 //Newuser .....
 func Newuser(name, email, aadhar, password string) User {
 
 	Password := SHA256ofstring(password)
-	U := User{Name: name, Email: email, PasswordHash: Password, Aadhar: aadhar}
+	U := User{Name: name, Email: email, PasswordHash: Password, Aadhar: aadhar,EpassIssued: false}
 	return U
 }
 
@@ -39,32 +38,27 @@ func SHA256ofstring(p string) string {
 }
 
 //Insertintouserdb inserts the data into the database
-func Insertintouserdb(usercollection *mongo.Collection, u User) (bool,error) {
+func Insertintouserdb(u User) (bool, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	fmt.Println(u.Name)
-	// user, err := bson.Marshal(u)
-	// if err != nil {
-	// 	log.Fatal("error while marshal", err)
-	// }
-	insertResult, err := usercollection.InsertOne(ctx, u)
+	insertResult, err := userCl.InsertOne(ctx, u)
 	if err != nil {
 		log.Print("error in inserting user", err)
-		return false,err
+		return false, err
 	}
 
-	fmt.Println("Inserted a single document: ", insertResult.InsertedID)
-	return true,nil
+	fmt.Println("Inserted a user document: ", insertResult.InsertedID)
+	return true, nil
 }
 
 //Findfromuserdb finds the required data
-func Findfromuserdb(usercollection *mongo.Collection, st string) bool {
+func UserExists(st string) bool {
 	filter := bson.D{primitive.E{Key: "email", Value: st}}
 	var result User
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err := usercollection.FindOne(ctx, filter).Decode(&result)
+	err := userCl.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
 		fmt.Println(err)
 		return false
@@ -73,49 +67,71 @@ func Findfromuserdb(usercollection *mongo.Collection, st string) bool {
 }
 
 //FindUser finds if the user exists but with respect to the username.
-func FindUser(usercollection *mongo.Collection, st string, p string) bool {
+func FindUser(st string, p string) (bool,User) {
 	filter := bson.D{primitive.E{Key: "email", Value: st}}
 	var result User
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err := usercollection.FindOne(ctx, filter).Decode(&result)
+	err := userCl.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
 		fmt.Println(err)
-		return false
+		return false,User{}
 	}
 	if result.PasswordHash != SHA256ofstring(p) {
-		return false
+		return false,User{}
 	}
-	return true
+	return true,result
 }
 
-func Finddb(usercollection *mongo.Collection, st string) User {
+//Finddb returs the user detail with respect to email string
+func Finddb(st string) (User,error) {
 	filter := bson.D{primitive.E{Key: "email", Value: st}}
 	var result User
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err := usercollection.FindOne(ctx, filter).Decode(&result)
+	err := userCl.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
-		fmt.Println(err)
-		return result
+		return User{},err
 	}
 
-	return result
+	return result,nil
 }
 
-//UpdateToken updates the user info
-func UpdateToken(c *mongo.Collection, o string, t string) bool {
+
+// UpdateUser updates the user info accordingly
+func UpdateUser(email string) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	filter := bson.D{
-		{"email", o},
+		{"email", email},
 	}
 	update := bson.D{
 		{
-			"$set", bson.D{{"token", t}},
+			"$set", bson.D{{"epass_issued", true}},
 		},
 	}
-	updateResult, err := c.UpdateOne(ctx, filter, update)
+	updateResult, err := userCl.UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	fmt.Printf("Matched %v documents and updated %v documents.\n", updateResult.MatchedCount, updateResult.ModifiedCount)
+	return true
+}
+
+//ResetUser unset the pass-issued value
+func ResetUser(email string) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	filter := bson.D{
+		{"email", email},
+	}
+	update := bson.D{
+		{
+			"$set", bson.D{{"epass_issued", false}},
+		},
+	}
+	updateResult, err := userCl.UpdateOne(ctx, filter, update)
 	if err != nil {
 		log.Fatal(err)
 		return false

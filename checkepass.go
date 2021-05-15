@@ -2,59 +2,67 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"strings"
 
-	"github.com/vashish1/Jann-Pass/db"
 	"github.com/vashish1/Jann-Pass/utilities"
-
-	"github.com/dgrijalva/jwt-go"
 )
 
-type str struct {
-	Qr string
+//fix updateUSer
+type QRStr struct {
+	base64String string
 }
 
 func checkepass(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	tokenString := r.Header.Get("Authorization")
-
 	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
-	fmt.Println("token", tokenString)
 
-	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method")
-		}
-		return []byte("idgafaboutthingsanymore"), nil
-	})
-	var id int
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		id = claims["id"].(int)
-	}
-	is := db.ValidID(cl2, id)
-	if is {
-		var test str
-		w.Header().Set("Content-Type", "application/json")
+	//Authenticating police code
+	ok := utilities.AuthPoliceVerification(tokenString)
+	if ok {
+		var str QRStr
 		body, _ := ioutil.ReadAll(r.Body)
-		err := json.Unmarshal(body, &test)
+		err := json.Unmarshal(body, &str)
 		if err != nil {
+			res := Response{
+				Error: err,
+			}
+			b, _ := json.Marshal(res)
+			w.Write(b)
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(`{"error": "body not parsed"}`))
 			return
 		}
-		ok := utilities.IsQrValid(cl3, test.Qr)
+		ok := utilities.ValidateQR(str.base64String)
 		if ok {
+			res := Response{
+				Success: true,
+				Error:   nil,
+			}
+			b, _ := json.Marshal(res)
+			w.Write(b)
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"Successfull": "Qr is valid"}`))
-		} else {
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"error": "Qr is not valid"}`))
+			return
 		}
-	} else {
+
+		res := Response{
+			Error:   errors.New("Invalid QR"),
+			Success: false,
+		}
+		b, _ := json.Marshal(res)
+		w.Write(b)
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error": "Authentication unsuccessful"}`))
+		return
 	}
+	//If user is unauthorized
+	res := Response{
+		Error: errors.New("User Authorization failed"),
+	}
+	b, _ := json.Marshal(res)
+	w.Write(b)
+	w.WriteHeader(http.StatusBadRequest)
+	return
+
 }

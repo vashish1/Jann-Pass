@@ -2,106 +2,84 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"image/png"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strings"
-	"time"
 
+	"github.com/boombuler/barcode"
+	"github.com/boombuler/barcode/qr"
 	"github.com/vashish1/Jann-Pass/db"
 	"github.com/vashish1/Jann-Pass/utilities"
-
-	"github.com/dgrijalva/jwt-go"
 )
 
-type pass struct {
-	Aadhar string
-	Slot   string
-	Date   string
-	Time   string
-	Area   string
+type Pass struct {
+	Slot string
+	Date string
+	Time string
+	Area string
+	Code int
 }
 
+//TODO: Automatically modify the user data if he/she
+//does not use the epass issued for that day, at the
+//end of the day.
+
 func epass(w http.ResponseWriter, r *http.Request) {
-	now := time.Now()
-	if count == 0 {
-		start = time.Now()
-		finish = start.AddDate(0, 0, 7)
-	} else if count == 50 && now.Before(finish) {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error": "cannot issue pass: Limit exceeded for a week"}`))
-		return
-	} else if count == 50 && now.After(finish) {
-		count = 1
-		start = now
-		finish = start.AddDate(0, 0, 7)
-	} else {
-		count++
-	}
+
 	w.Header().Set("Content-Type", "application/json")
 	tokenString := r.Header.Get("Authorization")
-
 	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
-	fmt.Println("token", tokenString)
 
-	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method")
-		}
-		return []byte("idgafaboutthingsanymore"), nil
-	})
-	var _, email string
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		_ = claims["name"].(string)
-		email = claims["email"].(string)
-	}
-	fmt.Print("email", email)
-	is := db.Findfromuserdb(cl1, email)
-	if is {
-		var regis pass
-		w.Header().Set("Content-Type", "application/json")
-		body, _ := ioutil.ReadAll(r.Body)
-		err := json.Unmarshal(body, &regis)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(`{"error": "body not parsed"}`))
-			return
-		}
-		var PASS db.Epass
-		PASS.Email = email
-		PASS.Aadhar = regis.Aadhar
-		PASS.Slot = regis.Slot
-		PASS.Date = regis.Date
-		PASS.Area = regis.Area
-		PASS.Qr = utilities.EncodeQrString(PASS)
-		PASS.QrAddress = utilities.StoreImage(PASS.Qr)
-		ok := db.InsertEpass(cl3, PASS)
-		if ok {
-			var enc png.Encoder
-			file, err := os.Open(PASS.QrAddress)
+	//Authenticating user
+	user := utilities.AuthVerification(tokenString)
+	if user.Email != "" {
+		//check if user has already initialised
+		//an epass for that day.
+		if !user.EpassIssued {
+			db.UpdateUser(user.Email)
+			var epass db.Epass
+			body, _ := ioutil.ReadAll(r.Body)
+			err := json.Unmarshal(body, &epass)
 			if err != nil {
-				fmt.Println(err)
-			}
-
-			img, err := png.Decode(file)
-			if err != nil {
-				fmt.Print(err)
+				res := Response{
+					Error: err,
+				}
+				b, _ := json.Marshal(res)
+				w.Write(b)
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte(`{"error": "Image not created"}`))
+				return
 			}
 
-			defer file.Close()
-			w.Header().Set("Content-Type", "image/png")
-			er := enc.Encode(w, img)
-			fmt.Print(er)
-		} else {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(`{"error": "Pass not inserted"}`))
+			encodedString := utilities.EncodeQrString(epass)
+
+			//creating a QR code and then sending as response
+			qrCode, _ := qr.Encode(encodedString, qr.L, qr.Auto)
+			qrCode, _ = barcode.Scale(qrCode, 128, 128)
+			png.Encode(w, qrCode)
+			w.WriteHeader(http.StatusAccepted)
+			return
+
 		}
-	} else {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"error": "Authentication unsuccessful"}`))
+
+		//Return error if EPass already issued by the user
+		//ONE-PASS-PER-USER-PER-DAY
+		res := Response{
+			Error: errors.New("Epass limit Exceeded"),
+		}
+		b, _ := json.Marshal(res)
+		w.Write(b)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	 }
+
+	 //If user is unauthorized
+	res := Response{
+		Error: errors.New("User Authorization failed"),
 	}
+	b, _ := json.Marshal(res)
+	w.Write(b)
+	w.WriteHeader(http.StatusBadRequest)
+	return
 }

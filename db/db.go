@@ -6,16 +6,19 @@ import (
 	"log"
 	"os"
 	"time"
-
-	// "go.mongodb.org/mongo-driver/bson"
-	// "go.mongodb.org/mongo-driver/bson/primitive"
-
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var userCl, policeCl, qrCl, countCl *mongo.Collection
+
+func init() {
+	userCl, policeCl, qrCl, countCl = Createdb()
+
+}
+
 //Createdb creates a database
-func Createdb() (*mongo.Collection, *mongo.Collection, *mongo.Collection) {
+func Createdb() (*mongo.Collection, *mongo.Collection, *mongo.Collection,*mongo.Collection) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	db := os.Getenv("DbURL")
@@ -29,6 +32,7 @@ func Createdb() (*mongo.Collection, *mongo.Collection, *mongo.Collection) {
 	user := client.Database("Jann-Pass").Collection("User")
 	police := client.Database("Jann-Pass").Collection("Police")
 	Qr := client.Database("Jann-Pass").Collection("Epass")
+	Count := client.Database("Jann-Pass").Collection("Count")
 
-	return user, police, Qr
+	return user, police, Qr,Count
 }

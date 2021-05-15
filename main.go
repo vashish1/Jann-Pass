@@ -1,10 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"time"
-
-	"github.com/vashish1/Jann-Pass/db"
 
 	// "github.com/vashish1/Jann-Pass/utilities"
 
@@ -12,23 +11,32 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/vashish1/Jann-Pass/db"
 	// "gopkg.in/mgo.v2/bson"
 )
 
-var cl1, cl2, cl3 *mongo.Collection
-var count int
-var start time.Time
-var finish time.Time
 var port = os.Getenv("PORT")
+var starttime=time.Now()
+var RestartAt=starttime.AddDate(0,0,7)
 
-func init() {
-	cl1, cl2, cl3 = db.Createdb()
-
+func RunTimer(){
+for{
+ fmt.Println("Run Timer working")
+ current:=time.Now()
+	if current==RestartAt{
+		current=RestartAt
+		RestartAt.AddDate(0,0,7)
+		db.ResetCounters()
+	}
+ }
 }
 
 func main() {
+
+	go RunTimer()
+
 	r := mux.NewRouter()
+
 	headers := handlers.AllowedHeaders([]string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization"})
 	methods := handlers.AllowedMethods([]string{"POST", "GET", "PUT", "DELETE"})
 	origins := handlers.AllowedOrigins([]string{"*"})
@@ -41,3 +49,4 @@ func main() {
 	http.Handle("/", handlers.CORS(headers, methods, origins)(r))
 	http.ListenAndServe(":"+port, nil)
 }
+
