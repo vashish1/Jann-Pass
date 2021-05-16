@@ -14,6 +14,9 @@ type ID struct {
 	ID int
 }
 
+//TODO: Admin routes to add or delete police
+
+//To add a new PoliceID in the database
 func InsertID(id int) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -29,6 +32,7 @@ func InsertID(id int) bool {
 	return true
 }
 
+//To Validate the ID of the POLICE making a Request
 func ValidID(id int) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -43,23 +47,3 @@ func ValidID(id int) bool {
 	return true
 
 }
-
-// func UpdatePoliceCreds( id int, token string) bool {
-// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-// 	defer cancel()
-// 	filter := bson.D{
-// 		{"id", id},
-// 	}
-// 	update := bson.D{
-// 		{
-// 			"$set", bson.D{{"token", token}},
-// 		},
-// 	}
-// 	updateResult, err := PoliceCl.UpdateOne(ctx, filter, update)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 		return false
-// 	}
-// 	fmt.Printf("Matched %v documents and updated %v documents.\n", updateResult.MatchedCount, updateResult.ModifiedCount)
-// 	return true
-// }

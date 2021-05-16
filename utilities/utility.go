@@ -42,12 +42,15 @@ func EncodeQrString(d db.Epass) string {
 
 }
 
+
+//Decoding the QR encoded String
 func DecodeQrString(data string) []string {
 	sDec, _ := b64.StdEncoding.DecodeString(data)
 	enc := strings.Split(string(sDec), ",")
 	return enc
 }
 
+//Helper functio to generate ID's
 func GenerateID() []int {
 	var slice []int
 	for i := 0; i < 20; i++ {
@@ -59,6 +62,7 @@ func GenerateID() []int {
 	return slice
 }
 
+//To Validate the QR encoded string 
 func ValidateQR(encodedString string) bool {
 
 	data := DecodeQrString(encodedString)

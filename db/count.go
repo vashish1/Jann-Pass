@@ -75,7 +75,21 @@ func getCountforArea(code int) (int, error) {
 
 //To Reset all the counters after a week.
 func ResetCounters() {
-	fmt.Println("counter reset")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	filter:=bson.M{}
+    update:=bson.D{
+		{"$set", bson.D{{"count", 0}}},
+	}
+    result, err := countCl.UpdateMany(
+		ctx,
+		filter,
+		update,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Updated %v Documents!\n", result.ModifiedCount)
 }
 
 //To check if the count of epass issued is <50 (max count for epass in a week)

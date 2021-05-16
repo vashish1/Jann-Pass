@@ -10,6 +10,9 @@ type Epass struct {
 	AreaCode int    `json:"area_code,omitempty"`
 }
 
+
+// <------- To be implemented Later -------------->
+
 // //InsertEpass inserts the data into the database
 // func InsertEpass(u Epass) bool {
 // 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+//Colections in database
 var userCl, policeCl, qrCl, countCl *mongo.Collection
 
 func init() {
