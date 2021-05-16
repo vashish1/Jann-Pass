@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -18,7 +17,7 @@ type mocksignup struct {
 
 type Response struct {
 	Error   string `json:"error,omitempty"`
-	Success bool  `json:"success,omitempty"`
+	Success bool   `json:"success,omitempty"`
 }
 
 func signup(w http.ResponseWriter, r *http.Request) {
@@ -32,16 +31,15 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u := db.Newuser(regis.Name, regis.Email, regis.Aadhar, regis.Password)
-	fmt.Println("user here", u)
-	ok, err := db.Insertintouserdb( u)
+	ok, err := db.Insertintouserdb(u)
 	if ok {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"successful": "Registered"}`))
+		w.Write([]byte(`{"success": "true"}`))
 	} else {
-		res:=Response{
+		res := Response{
 			Error: err.Error(),
 		}
-		b,_:=json.Marshal(res)
+		b, _ := json.Marshal(res)
 		w.Write(b)
 		w.WriteHeader(http.StatusBadRequest)
 		return
