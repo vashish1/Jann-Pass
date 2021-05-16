@@ -33,7 +33,7 @@ for{
 
 func main() {
 
-	go RunTimer()
+	// go RunTimer()
 
 	r := mux.NewRouter()
 

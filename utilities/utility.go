@@ -23,16 +23,16 @@ func EncodeQrString(d db.Epass) string {
 	//Hash value according to the slot
 	switch d.Slot {
 	case "11:00-1:00":
-		start = time.Date(y, m, date, 11, 0, 0, 0, time.UTC)
-		expire = time.Date(y, m, date, 13, 0, 0, 0, time.UTC)
+		start = time.Date(y, m, date, 11, 0, 0, 0, time.Local)
+		expire = time.Date(y, m, date, 13, 0, 0, 0, time.Local)
 		hash = strings.Join([]string{d.Email, start.String(), expire.String()}, ",")
 	case "2:00-4:00":
-		start = time.Date(y, m, date, 14, 0, 0, 0, time.UTC)
-		expire = time.Date(y, m, date, 16, 0, 0, 0, time.UTC)
+		start = time.Date(y, m, date, 13, 0, 0, 0, time.Local)
+		expire = time.Date(y, m, date, 16, 0, 0, 0, time.Local)
 		hash = strings.Join([]string{d.Email, start.String(), expire.String()}, ",")
 	case "5:00-7:00":
-		start = time.Date(y, m, date, 17, 0, 0, 0, time.UTC)
-		expire = time.Date(y, m, date, 19, 0, 0, 0, time.UTC)
+		start = time.Date(y, m, date, 17, 0, 0, 0, time.Local)
+		expire = time.Date(y, m, date, 19, 0, 0, 0, time.Local)
 		hash = strings.Join([]string{d.Email, start.String(), expire.String()}, ",")
 	}
 
@@ -43,7 +43,6 @@ func EncodeQrString(d db.Epass) string {
 }
 
 func DecodeQrString(data string) []string {
-	data = data[1:len(data)]
 	sDec, _ := b64.StdEncoding.DecodeString(data)
 	enc := strings.Split(string(sDec), ",")
 	return enc
@@ -64,10 +63,11 @@ func ValidateQR(encodedString string) bool {
 
 	data := DecodeQrString(encodedString)
 	db.ResetUser(data[0])
-	start,_ := time.Parse("2020-04-03 14:00:00 +0000 UTC", data[1])
-    end,_ := time.Parse("2020-04-03 14:00:00 +0000 UTC", data[2])
-    now:=time.Now()
-	if start.Before(now)&&end.After(now){
+	layout := "2006-01-02 15:04:05 -0700 MST"
+	start, _ := time.ParseInLocation(layout, data[1], time.Local)
+	end, _ := time.ParseInLocation(layout, data[2], time.Local)
+	now := time.Now()
+	if start.Before(now) && end.After(now) {
 		return true
 	}
 	return false

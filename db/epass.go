@@ -2,12 +2,12 @@ package db
 
 //Epass stores the data of epass
 type Epass struct {
-	Email    string
-	Qr       string
-	Slot     string
-	Date     string
-	Area     string
-	AreaCode int
+	Email    string `json:"email,omitempty"`
+	Qr       string `json:"qr,omitempty"`
+	Slot     string `json:"slot,omitempty"`
+	Date     string `json:"date,omitempty"`
+	Area     string `json:"area,omitempty"`
+	AreaCode int    `json:"area_code,omitempty"`
 }
 
 // //InsertEpass inserts the data into the database

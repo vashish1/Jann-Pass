@@ -54,7 +54,7 @@ func AuthPoliceVerification(tokenString string) bool {
 
 	var id int
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		id = claims["id"].(int)
+		id = int(claims["id"].(float64))
 	}
 
 	ok := db.ValidID(id)

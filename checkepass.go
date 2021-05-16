@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -10,9 +10,10 @@ import (
 	"github.com/vashish1/Jann-Pass/utilities"
 )
 
-//fix updateUSer
+//TODO- same qr request -No increase in counter for area
+
 type QRStr struct {
-	base64String string
+	Base64String string `json:"base_64_string,omitempty"`
 }
 
 func checkepass(w http.ResponseWriter, r *http.Request) {
@@ -28,18 +29,18 @@ func checkepass(w http.ResponseWriter, r *http.Request) {
 		err := json.Unmarshal(body, &str)
 		if err != nil {
 			res := Response{
-				Error: err,
+				Error: err.Error(),
 			}
 			b, _ := json.Marshal(res)
 			w.Write(b)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		ok := utilities.ValidateQR(str.base64String)
+		ok := utilities.ValidateQR(str.Base64String)
 		if ok {
 			res := Response{
 				Success: true,
-				Error:   nil,
+				Error:   "nil",
 			}
 			b, _ := json.Marshal(res)
 			w.Write(b)
@@ -48,17 +49,19 @@ func checkepass(w http.ResponseWriter, r *http.Request) {
 		}
 
 		res := Response{
-			Error:   errors.New("Invalid QR"),
 			Success: false,
+			Error:   "Invalid QR",
 		}
+		fmt.Println(res)
 		b, _ := json.Marshal(res)
 		w.Write(b)
+		// json.NewEncoder(w).Encode(res)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	//If user is unauthorized
 	res := Response{
-		Error: errors.New("User Authorization failed"),
+		Error: "User Authorization failed",
 	}
 	b, _ := json.Marshal(res)
 	w.Write(b)

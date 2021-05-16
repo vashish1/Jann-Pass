@@ -16,7 +16,7 @@ type Area struct {
 	Name  string `json:"name,omitempty"`
 	City  string `json:"city,omitempty"`
 	Code  int    `json:"code,omitempty"`
-	count int
+	count int    `json:"count,omitempty"`
 }
 
 //InsertEpass inserts the data into the database

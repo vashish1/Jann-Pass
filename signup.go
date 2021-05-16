@@ -17,7 +17,7 @@ type mocksignup struct {
 }
 
 type Response struct {
-	Error   error `json:"error,omitempty"`
+	Error   string `json:"error,omitempty"`
 	Success bool  `json:"success,omitempty"`
 }
 
@@ -39,7 +39,7 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"successful": "Registered"}`))
 	} else {
 		res:=Response{
-			Error: err,
+			Error: err.Error(),
 		}
 		b,_:=json.Marshal(res)
 		w.Write(b)

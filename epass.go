@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"image/png"
 	"io/ioutil"
 	"net/http"
@@ -14,21 +13,13 @@ import (
 	"github.com/vashish1/Jann-Pass/utilities"
 )
 
-type Pass struct {
-	Slot string
-	Date string
-	Time string
-	Area string
-	Code int
-}
-
 //TODO: Automatically modify the user data if he/she
 //does not use the epass issued for that day, at the
 //end of the day.
 
 func epass(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "image/png")
 	tokenString := r.Header.Get("Authorization")
 	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
@@ -44,14 +35,14 @@ func epass(w http.ResponseWriter, r *http.Request) {
 			err := json.Unmarshal(body, &epass)
 			if err != nil {
 				res := Response{
-					Error: err,
+					Error: err.Error(),
 				}
 				b, _ := json.Marshal(res)
 				w.Write(b)
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
-
+			epass.Email = user.Email
 			encodedString := utilities.EncodeQrString(epass)
 
 			//creating a QR code and then sending as response
@@ -66,17 +57,17 @@ func epass(w http.ResponseWriter, r *http.Request) {
 		//Return error if EPass already issued by the user
 		//ONE-PASS-PER-USER-PER-DAY
 		res := Response{
-			Error: errors.New("Epass limit Exceeded"),
+			Error: "Epass limit Exceeded",
 		}
 		b, _ := json.Marshal(res)
 		w.Write(b)
 		w.WriteHeader(http.StatusBadRequest)
 		return
-	 }
+	}
 
-	 //If user is unauthorized
+	//If user is unauthorized
 	res := Response{
-		Error: errors.New("User Authorization failed"),
+		Error: "User Authorization failed",
 	}
 	b, _ := json.Marshal(res)
 	w.Write(b)

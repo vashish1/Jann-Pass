@@ -47,7 +47,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		tokenString, err := token.SignedString([]byte(os.Getenv("secret key")))
 		if err != nil {
 			res := Response{
-				Error: err,
+				Error: err.Error(),
 			}
 			b, _ := json.Marshal(res)
 			w.Write(b)
